@@ -26,40 +26,23 @@ function placeSnake() {
   snakeY = Math.floor(Math.random() * rows) * blockSize
 }
 
-// moving obstacle
-let mob1X, mob1Y
-let vel1X = 0
-let vel1Y = 0
-
-let mob2X, mob2Y
-let vel2X = 0
-let vel2Y = 0
-
-function placeMovingObstacle() {
-  mob1X = Math.floor(Math.random() * cols)
-  mob1Y = Math.floor(Math.random() * rows)
-
-  mob2X = Math.floor(Math.random() * cols)
-  mob2Y = Math.floor(Math.random() * rows)
-}
 
 // leaderboard
 let leaderboard = []
 const leaderboardElement = document.getElementById("leaderboard")
 
 // game
-let intervalTime = 200
+let intervalTime = 50
 let interval = null
 let gameOver = false
 const resetButton = document.getElementById("reset")
-
 
 function update() {
   if (gameOver) {
     return;
   }
 
-  console.log(mob1X,mob1Y,mob2X,mob2Y)
+  console.log(snakeX,snakeY,foodX,foodY)
   context.fillStyle = "lightgrey"
   context.fillRect(0,0,board.width,board.height)
 
@@ -68,28 +51,9 @@ function update() {
 
   if (snakeX == foodX && snakeY == foodY) {
     snakeBody.push([foodX,foodY])
-    increaseSpeed()
+    // increaseSpeed()
     placeFood()
   }  
-
-  context.fillStyle = "brown"
-  mob1X = move(mob1X)
-  mob1Y = move(mob1Y)
-  mob2X = move(mob2X)
-  mob2Y = move(mob2Y)
-
-  function move(x) {
-    x += Math.floor(Math.random() * 3 ) - 1
-    if (x == -1) {
-      x = 39
-    } else if (x == 40) {
-      x = 0
-    }
-    return x
-  }
-
-  context.fillRect(mob1X*blockSize,mob1Y*blockSize,blockSize,blockSize)
-  context.fillRect(mob2X*blockSize,mob2Y*blockSize,blockSize,blockSize)
 
   for (let i = snakeBody.length-1; i > 0; i--) {
     snakeBody[i] = snakeBody[i-1]
@@ -100,6 +64,26 @@ function update() {
   }
 
   context.fillStyle = "yellow"
+  let varX = foodX - snakeX
+  let varY = foodY - snakeY
+  if (Math.abs(varX) >= Math.abs(varY)) {
+    if (varX <= 0) {
+      dirX = -1
+      dirY = 0
+    } else if (varX > 0) {
+      dirX = 1
+      dirY = 0
+    }
+  } else {
+    if (varY < 0) {
+      dirY = -1
+      dirX = 0
+    } else if (varY > 0) {
+      dirY = 1
+      dirX = 0
+    }
+  }
+
   snakeX += dirX * blockSize
   snakeY += dirY * blockSize
   context.fillRect(snakeX,snakeY,blockSize,blockSize) 
@@ -109,23 +93,23 @@ function update() {
   }
 
   //game over conditions
-  if (snakeX < 0 || snakeX >= cols*blockSize || snakeY < 0 || snakeY >= rows*blockSize) {
-    endGame()
-  }
+  // if (snakeX < 0 || snakeX >= cols*blockSize || snakeY < 0 || snakeY >= rows*blockSize) {
+  //   endGame()
+  // }
 
-  for (let i = 0; i < snakeBody.length; i++) {
-    if (snakeX == snakeBody[i][0] && snakeY == snakeBody[i][1]){
-      endGame()
-    }
-  }
+  // for (let i = 0; i < snakeBody.length; i++) {
+  //   if (snakeX == snakeBody[i][0] && snakeY == snakeBody[i][1]){
+  //     endGame()
+  //   }
+  // }
 
-  if (snakeX == mob1X && snakeY == mob1Y) {
-    endGame()
-  }
+  // if (snakeX == mob1X && snakeY == mob1Y) {
+  //   endGame()
+  // }
 
-  if (snakeX == mob2X && snakeY == mob2Y) {
-    endGame()
-  }
+  // if (snakeX == mob2X && snakeY == mob2Y) {
+  //   endGame()
+  // }
 }
 
 function endGame() {
@@ -192,7 +176,6 @@ function reset() {
 displayLeaderboard()
 placeFood()
 placeSnake()
-placeMovingObstacle()
 interval = setInterval(update,intervalTime)
 document.addEventListener('keydown',changeDirection)
 resetButton.addEventListener('click', reset)
