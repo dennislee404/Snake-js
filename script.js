@@ -26,12 +26,29 @@ function placeSnake() {
   snakeY = Math.floor(Math.random() * rows) * blockSize
 }
 
+// moving obstacle
+let mob1X, mob1Y
+let vel1X = 0
+let vel1Y = 0
+
+let mob2X, mob2Y
+let vel2X = 0
+let vel2Y = 0
+
+function placeMovingObstacle() {
+  mob1X = Math.floor(Math.random() * cols)
+  mob1Y = Math.floor(Math.random() * rows)
+
+  mob2X = Math.floor(Math.random() * cols)
+  mob2Y = Math.floor(Math.random() * rows)
+}
+
 // leaderboard
 let leaderboard = []
 const leaderboardElement = document.getElementById("leaderboard")
 
 // game
-let speed = 200
+let intervalTime = 200
 let interval = null
 let gameOver = false
 const resetButton = document.getElementById("reset")
@@ -42,7 +59,7 @@ function update() {
     return;
   }
 
-  console.log(1/speed,speed)
+  console.log(mob1X,mob1Y,mob2X,mob2Y)
   context.fillStyle = "lightgrey"
   context.fillRect(0,0,board.width,board.height)
 
@@ -54,6 +71,25 @@ function update() {
     increaseSpeed()
     placeFood()
   }  
+
+  context.fillStyle = "brown"
+  mob1X = move(mob1X)
+  mob1Y = move(mob1Y)
+  mob2X = move(mob2X)
+  mob2Y = move(mob2Y)
+
+  function move(x) {
+    x += Math.floor(Math.random() * 3 ) - 1
+    if (x == -1) {
+      x = 39
+    } else if (x == 40) {
+      x = 0
+    }
+    return x
+  }
+
+  context.fillRect(mob1X*blockSize,mob1Y*blockSize,blockSize,blockSize)
+  context.fillRect(mob2X*blockSize,mob2Y*blockSize,blockSize,blockSize)
 
   for (let i = snakeBody.length-1; i > 0; i--) {
     snakeBody[i] = snakeBody[i-1]
@@ -82,6 +118,14 @@ function update() {
       endGame()
     }
   }
+
+  if (snakeX == mob1X && snakeY == mob1Y) {
+    endGame()
+  }
+
+  if (snakeX == mob2X && snakeY == mob2Y) {
+    endGame()
+  }
 }
 
 function endGame() {
@@ -109,9 +153,9 @@ function changeDirection(event) {
 }
 
 function increaseSpeed() {
-  speed *= 0.9
+  intervalTime *= 0.9
   clearInterval(interval)
-  interval = setInterval(update,speed)
+  interval = setInterval(update,intervalTime)
 }
 
 function displayLeaderboard() {
@@ -136,19 +180,20 @@ function displayLeaderboard() {
 function reset() {
   gameOver = false
   clearInterval(interval)
-  speed = 200
+  intervalTime = 200
   snakeBody = []
   dirX = 0
   dirY = 0
   placeFood()
   placeSnake()
-  interval = setInterval(update,speed)
+  interval = setInterval(update,intervalTime)
 }
 
 displayLeaderboard()
 placeFood()
 placeSnake()
-interval = setInterval(update,speed)
+placeMovingObstacle()
+interval = setInterval(update,intervalTime)
 document.addEventListener('keydown',changeDirection)
 resetButton.addEventListener('click', reset)
 
